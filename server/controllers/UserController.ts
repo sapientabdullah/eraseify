@@ -3,6 +3,7 @@ import { Webhook } from "svix";
 import { Request, Response } from "express";
 import userModel from "../models/user";
 
+
 const clerkWebhook = async (req: Request, res: Response) => {
   try {
     const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
@@ -24,8 +25,8 @@ const clerkWebhook = async (req: Request, res: Response) => {
         const userData = {
           clerkId: data.id,
           email: data.email_addresses[0].email,
-          firstName: data.first_name,
-          lastName: data.last_name,
+          first_name: data.first_name,
+          last_name: data.last_name,
           photo: data.image_url,
         };
         await userModel.create(userData);
@@ -35,8 +36,8 @@ const clerkWebhook = async (req: Request, res: Response) => {
       case "user.updated": {
         const userData = {
           email: data.email_addresses[0].email,
-          firstName: data.first_name,
-          lastName: data.last_name,
+          first_name: data.first_name,
+          last_name: data.last_name,
           photo: data.image_url,
         };
         await userModel.findOneAndUpdate({ clerkId: data.id }, userData);

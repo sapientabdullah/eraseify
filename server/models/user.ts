@@ -11,15 +11,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  photo: {
-    type: String,
-    required: true,
-  },
   first_name: {
     type: String,
   },
   last_name: {
     type: String,
+  },
+  photo: {
+    type: String,
+    required: true,
   },
 });
 
