@@ -1,8 +1,6 @@
 import { Webhook } from "svix";
-
 import { Request, Response } from "express";
 import userModel from "../models/user";
-
 
 const clerkWebhook = async (req: Request, res: Response) => {
   try {
@@ -10,6 +8,7 @@ const clerkWebhook = async (req: Request, res: Response) => {
     if (!webhookSecret) {
       throw new Error("CLERK_WEBHOOK_SECRET is not defined");
     }
+
     const webhook = new Webhook(webhookSecret);
 
     await webhook.verify(JSON.stringify(req.body), {
@@ -30,7 +29,7 @@ const clerkWebhook = async (req: Request, res: Response) => {
           photo: data.image_url,
         };
         await userModel.create(userData);
-        res.json({});
+        res.json({ success: true });
         break;
       }
       case "user.updated": {
@@ -41,21 +40,29 @@ const clerkWebhook = async (req: Request, res: Response) => {
           photo: data.image_url,
         };
         await userModel.findOneAndUpdate({ clerkId: data.id }, userData);
-        res.json({});
+        res.json({ success: true });
         break;
       }
       case "user.deleted": {
         await userModel.findOneAndDelete({ clerkId: data.id });
-        res.json({});
+        res.json({ success: true });
+        break;
+      }
+      default: {
+        console.log(`Unhandled webhook type: ${type}`);
+        res
+          .status(400)
+          .json({ success: false, message: `Unhandled event type: ${type}` });
         break;
       }
     }
   } catch (err) {
     if (err instanceof Error) {
       console.log(err.message);
-      res.json({ success: false });
+      res.status(400).json({ success: false, error: err.message });
     } else {
       console.log(String(err));
+      res.status(400).json({ success: false, error: "Unknown error" });
     }
   }
 };
